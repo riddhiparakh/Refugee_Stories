@@ -3,11 +3,11 @@ from openai import OpenAI
 from docx import Document
 from io import BytesIO
 import os
-from dotenv import load_dotenv 
-load_dotenv()
-openai_api_key = os.getenv('OPENAI_API_KEY')
+# from dotenv import load_dotenv 
+# load_dotenv()
+# openai_api_key = os.getenv('OPENAI_API_KEY')
 
-client = OpenAI(api_key = openai_api_key )
+client = OpenAI(api_key = "sk-proj-P6aDIqLWdMnei47tiQfYT3BlbkFJp7TYqZRvC0aWUQNqyqot")
 
 
 def create_form():
