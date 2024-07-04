@@ -3,11 +3,11 @@ from openai import OpenAI
 from docx import Document
 from io import BytesIO
 import os
-# from dotenv import load_dotenv 
-# load_dotenv()
-# openai_api_key = os.getenv('OPENAI_API_KEY')
+from dotenv import load_dotenv 
+load_dotenv()
+openai_api_key = os.getenv('OPENAI_API_KEY')
 
-client = OpenAI(api_key = "sk-proj-P6aDIqLWdMnei47tiQfYT3BlbkFJp7TYqZRvC0aWUQNqyqot")
+client = OpenAI(api_key = openai_api_key)
 
 
 def create_form():
@@ -32,6 +32,7 @@ def create_form():
     occupation_canada = st.text_input("Occupation in Canada (if applicable)")
 
     st.header("Part 4: Details of Persecution")
+
     property_dispute = st.text_area("Background of the Property Dispute (Description of property, Cause of dispute)")
     threats = st.text_area("Threats and Incidents (Describe each threat/incident with date, nature, individuals involved)")
 
@@ -70,6 +71,9 @@ def create_form():
       
 
     if st.button("Generate Story"):
+            if not any([full_name,place_of_birth,property_dispute]):
+              st.warning("Please fill in Name, Place of Birth and One Dispute to generate the story.")
+              return 
             input_data = {
                 'full_name': full_name,
                 'dob': dob,
@@ -134,7 +138,7 @@ def create_form():
 def generate_story(details):
     prompt = [
         {"role": "assistant", "content": "You are a Journalist. Your work is to create awareness about people seeking refuge in different countries and their reasons behind this. Like a good Journalist, use the user information to create an impactful story which would help the refugee to seek better opportunities."},
-        {"role": "user", "content":  f"A refugee named {details['full_name']}, aged {details['dob']} from {details['place_of_birth']}, currently residing at {details['current_address']}. "f"They are {details['marital_status']} with {details['children']} children. Their education level is {details['education']} "f"and occupation in their home country is {details['occupation_home_country']}. They faced a property dispute related to {details['property_dispute']} "f"and encountered threats like {details['threats']}. They interacted with government officials regarding {details['government_interactions']} "f"and felt {details['political_pressure']} political pressure. Their current life situation involves {details['current_life']} and they fear returning to {details['fear_of_returning']}. "f"They are interested in {', '.join(details['tags'])} and movies like {', '.join(details['movies'])}. Their story theme is {details['story_theme']}." f"{details['additional_info'] if details['additional_info'] else ''}"
+        {"role": "user", "content":  f"A refugee named {details['full_name']}, aged {details['dob']} from {details['place_of_birth']}, currently residing at {details['current_address']}. "f"They are {details['marital_status']} with {details['children']} children. Their education level is {details['education']} "f"and occupation in their home country is {details['occupation_home_country']}. They faced a property dispute related to {details['property_dispute']} "f"and encountered threats like {details['threats']}. They interacted with government officials regarding {details['government_interactions']} "f"and felt {details['political_pressure']} political pressure. Their current life situation involves {details['current_life']} and they fear returning to {details['fear_of_returning']}.Their story theme is {details['story_theme']}." f"{details['additional_info'] if details['additional_info'] else ''}"
    
         }
     ]
@@ -143,9 +147,9 @@ def generate_story(details):
     response = client.chat.completions.create(model="gpt-3.5-turbo",  # Use the desired model
     messages=prompt,
     max_tokens=3400,
-    n=3,
+    n=4,
     stop=None,
-    temperature=0.4)
+    temperature=0.7)
 
     story=response.choices[0].message.content
     return story
