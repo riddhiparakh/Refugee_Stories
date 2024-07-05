@@ -73,7 +73,7 @@ def create_form():
       
 
     if st.button("Generate Story"):
-            if not any([full_name,place_of_birth,property_dispute]):
+            if not all([full_name,place_of_birth,property_dispute]):
               st.warning("Please fill in Name, Place of Birth and One Dispute to generate the story.")
               return 
             input_data = {
