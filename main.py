@@ -4,7 +4,7 @@ from docx import Document
 from io import BytesIO
 import os
 from dotenv import load_dotenv
-
+from datetime import date,datetime
 
 load_dotenv()
 openai_api_key = os.getenv('OPENAI_API_KEY')
@@ -17,7 +17,17 @@ def create_form():
 
     st.header("Part 1: Personal Details")
     full_name = st.text_input("Full Name")
-    dob = st.date_input("Date of Birth")
+    
+    year = st.selectbox("Year", range(1950, 2025), index=35)  # Adjust the range as needed
+    month = st.selectbox("Month", range(1, 13))
+    day = st.selectbox("Day", range(1, 32))
+
+# Construct the date
+    try:
+        birth_date = date(year, month, day)
+        st.write(f"{full_name}'s birth date is:", birth_date)
+    except ValueError:
+        st.write("Invalid date selected. Please check the day, month, and year.")
     place_of_birth = st.text_input("Place of Birth")
     current_address = st.text_input("Current Address in Canada")
     phone = st.text_input("Phone")
@@ -78,7 +88,7 @@ def create_form():
               return 
             input_data = {
                 'full_name': full_name,
-                'dob': dob,
+                'dob': birth_date,
                 'place_of_birth': place_of_birth,
                 'current_address': current_address,
                 'phone': phone,
@@ -136,11 +146,19 @@ def create_form():
                     file_name="asylum_story.docx",
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
+def calculate_age(dob):
+    today = datetime.today()
+    dob_str = dob.strftime("%Y-%m-%d")
+    dob = datetime.strptime(dob_str, "%Y-%m-%d")
+    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    return age
+
 
 def generate_story(details):
+    current_age = calculate_age(details['dob'])
     prompt = [
-        {"role": "assistant", "content": "You are a Journalist. Your work is to create awareness about people seeking refuge in different countries and their reasons behind this. Like a good Journalist, use the user information to create an impactful story which would help the refugee to seek better opportunities."},
-        {"role": "user", "content":  f"A refugee named {details['full_name']}, aged {details['dob']} from {details['place_of_birth']}, currently residing at {details['current_address']}. "f"They are {details['marital_status']} with {details['children']} children. Their education level is {details['education']} "f"and occupation in their home country is {details['occupation_home_country']}. They faced a property dispute related to {details['property_dispute']} "f"and encountered threats like {details['threats']}. They interacted with government officials regarding {details['government_interactions']} "f"and felt {details['political_pressure']} political pressure. Their current life situation involves {details['current_life']} and they fear returning to {details['fear_of_returning']}.Their story theme is {details['story_theme']}." f"{details['additional_info'] if details['additional_info'] else ''}"
+        {"role": "assistant", "content": "You are a journalist whose helping Indian Student to articulate a story which will help them achieve freedom from their issues. Your task is to create awareness about Indians seeking refuge in Canada and their reasons behind seeking refuge. Use the user information to create an impactful story that will help refugees seek better opportunities.Use your journalist ability to creat great stories which can change lives. It should be in written in Frist person.Also include all the incidents mentioned in details. "},
+        {"role": "user", "content":  f"A refugee named {details['full_name']}, aged {current_age} from {details['place_of_birth']}, currently residing at {details['current_address']}. "f"They are {details['marital_status']} with {details['children']} children. Their education level is {details['education']} "f"and occupation in their home country is {details['occupation_home_country']}. They faced a property dispute related to {details['property_dispute']} "f"and encountered threats like {details['threats']}. They interacted with government officials regarding {details['government_interactions']} "f"and felt {details['political_pressure']} political pressure. Their current life situation involves {details['current_life']} and they fear returning to {details['fear_of_returning']}.Their story theme is {details['story_theme']}." f"{details['additional_info'] if details['additional_info'] else ''}"
    
         }
     ]
@@ -149,9 +167,9 @@ def generate_story(details):
     response = client.chat.completions.create(model="gpt-3.5-turbo",  # Use the desired model
     messages=prompt,
     max_tokens=3400,
-    n=4,
+    n=3,top_p=0.9,
     stop=None,
-    temperature=0.7)
+    temperature=0.4,presence_penalty=0.5)
 
     story=response.choices[0].message.content
     return story
