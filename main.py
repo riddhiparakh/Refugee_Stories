@@ -74,7 +74,7 @@ def create_form():
     story_theme_other = st.text_input("If 'Other', please specify") if story_theme == "Other" else ""
     num_incidents = st.number_input("Number of Incidents to Include", min_value=1, step=1)
     length_of_story = st.selectbox("Length of Story", ["Short (1-2 pages)", "Medium (3-5 pages)", "Long (6+ pages)"])
-    num_paragraphs = st.number_input("Number of Paragraphs", min_value=1, step=1)
+    # num_paragraphs = st.number_input("Number of Paragraphs", min_value=1, step=1)
 
     st.header("Part 10: Conclusion")
     appeal_for_protection = st.text_area("Summarize why you believe you meet the criteria for refugee protection")
@@ -119,7 +119,7 @@ def create_form():
                 'story_theme_other': story_theme_other,
                 'num_incidents': num_incidents,
                 'length_of_story': length_of_story,
-                'num_paragraphs': num_paragraphs,
+                # 'num_paragraphs': num_paragraphs,
                 'appeal_for_protection': appeal_for_protection,
                 'additional_info': additional_info,
             }
@@ -157,7 +157,7 @@ def calculate_age(dob):
 def generate_story(details):
     current_age = calculate_age(details['dob'])
     prompt = [
-        {"role": "assistant", "content": "You are a journalist whose helping Indian Student to articulate a story which will help them achieve freedom from their issues. Your task is to create awareness about Indians seeking refuge in Canada and their reasons behind seeking refuge. Use the user information to create an impactful story that will help refugees seek better opportunities.Use your journalist ability to creat great stories which can change lives. It should be in written in Frist person.Also include all the incidents mentioned in details. "},
+        {"role": "assistant", "content": "You are a journalist whose helping Indian Student to articulate a story which will help them achieve freedom from their issues. Your task is to create awareness about Indians seeking refuge in Canada and their reasons behind seeking refuge. Use the user information to create an impactful story that will help refugees seek better opportunities.Use your journalist ability to creat great stories which can change lives. It should be in written in Frist person.Also include all the incidents mentioned in details.It should only have given number of paragraphs.  "},
         {"role": "user", "content":  f"A refugee named {details['full_name']}, aged {current_age} from {details['place_of_birth']}, currently residing at {details['current_address']}. "f"They are {details['marital_status']} with {details['children']} children. Their education level is {details['education']} "f"and occupation in their home country is {details['occupation_home_country']}. They faced a property dispute related to {details['property_dispute']} "f"and encountered threats like {details['threats']}. They interacted with government officials regarding {details['government_interactions']} "f"and felt {details['political_pressure']} political pressure. Their current life situation involves {details['current_life']} and they fear returning to {details['fear_of_returning']}.Their story theme is {details['story_theme']}." f"{details['additional_info'] if details['additional_info'] else ''}"
    
         }
